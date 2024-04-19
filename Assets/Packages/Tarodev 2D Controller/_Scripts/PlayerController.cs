@@ -80,7 +80,7 @@ namespace TarodevController
         {
             CheckCollisions();
 
-            HandleJump();
+            //HandleJump();
             HandleDirection();
             HandleGravity();
             
@@ -136,24 +136,43 @@ namespace TarodevController
         private bool HasBufferedJump => _bufferedJumpUsable && _time < _timeJumpWasPressed + _stats.JumpBuffer;
         private bool CanUseCoyote => _coyoteUsable && !_grounded && _time < _frameLeftGrounded + _stats.CoyoteTime;
 
-        private void HandleJump()
+        //private void HandleJump()
+        //{
+        //    if (!_endedJumpEarly && !_grounded && !_frameInput.JumpHeld && _rb.velocity.y > 0) _endedJumpEarly = true;
+
+        //    if (!_jumpToConsume && !HasBufferedJump) return;
+
+        //    if (_grounded || CanUseCoyote) ExecuteJump();
+
+        //    _jumpToConsume = false;
+        //}
+
+        public void ExecuteJump()
         {
-            if (!_endedJumpEarly && !_grounded && !_frameInput.JumpHeld && _rb.velocity.y > 0) _endedJumpEarly = true;
+            // Get the position of the cursor in screen coordinates
+            Vector3 cursorScreenPosition = Input.mousePosition;
 
-            if (!_jumpToConsume && !HasBufferedJump) return;
+            // Calculate the position relative to the center of the screen
+            float relativeX = (cursorScreenPosition.x - (Screen.width / 2)) / (Screen.width / 2);
 
-            if (_grounded || CanUseCoyote) ExecuteJump();
+            // Clamp the value to ensure it stays within the range of -1 to 1
+            relativeX = Mathf.Clamp(relativeX, -1f, 1f);
 
-            _jumpToConsume = false;
-        }
+            relativeX *= 3;
 
-        private void ExecuteJump()
-        {
+            if (relativeX < .25f && relativeX > -.25f)
+                relativeX = 0;
+
+            relativeX = Mathf.Clamp(relativeX, -1f, 1f);
+            // Output the normalized cursor position
+            //Debug.Log("Normalized Cursor Position: " + relativeX);
+
             _endedJumpEarly = false;
             _timeJumpWasPressed = 0;
             _bufferedJumpUsable = false;
             _coyoteUsable = false;
             _frameVelocity.y = _stats.JumpPower;
+            _frameVelocity.x = -relativeX * _stats.MaxSpeed * 2.5f;
             Jumped?.Invoke();
         }
 

@@ -10,6 +10,8 @@ public class SwordParrySystem : MonoBehaviour
 
     private bool m1, m2;
 
+    public bool gravityBlade, earthBlade;
+
     private void Awake()
     {
         parryParent = GetComponentInChildren<ParryParent>();
@@ -42,6 +44,14 @@ public class SwordParrySystem : MonoBehaviour
         {
             parryParent.enabled = false;
             parryCollider.SetActive(true);
+
+            if (gravityBlade)
+            {
+                if (!FindObjectOfType<TarodevController.PlayerController>().antiGrav)
+                    FindObjectOfType<TarodevController.PlayerController>().antiGrav = true;
+                else
+                    FindObjectOfType<TarodevController.PlayerController>().antiGrav = false;
+            }
         }
         else
         {
@@ -53,15 +63,23 @@ public class SwordParrySystem : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Parryable"))
             ParryObject(collision.gameObject);
+        if (earthBlade && collision.gameObject.layer == LayerMask.NameToLayer("Ground"))
+            FindObjectOfType<TarodevController.PlayerController>().ExecuteJump();
     }
     private void ParryObject(GameObject go)
     {
+        if (gravityBlade)
+            return;
+
         Vector2 dir = Camera.main.ScreenToWorldPoint(Input.mousePosition) - transform.position;
         float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
         Quaternion desiredRot = Quaternion.AngleAxis(angle, Vector3.forward);
 
+        go.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
+
         go.transform.rotation = desiredRot;
 
-        go.GetComponent<Rigidbody2D>().velocity = -go.GetComponent<Rigidbody2D>().velocity;
+        go.GetComponent<Rigidbody2D>().AddForce((Camera.main.ScreenToWorldPoint(Input.mousePosition) - transform.position).normalized * go.GetComponent<Projectile>().speed * 2, ForceMode2D.Impulse);
+
     }
 }

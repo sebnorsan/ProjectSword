@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class Projectile : MonoBehaviour
 {
-    [SerializeField] private float speed = 1f;
+    public float speed = 1f;
     private void Awake()
     {
         Vector2 dir = GameObject.Find("Player").transform.position - transform.position;
