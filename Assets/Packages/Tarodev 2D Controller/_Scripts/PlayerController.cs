@@ -15,7 +15,7 @@ namespace TarodevController
     {
         [SerializeField] private ScriptableStats _stats;
 
-        [SerializeField] private SpriteRenderer _sprite;
+        [SerializeField] private GameObject _sprite;
 
         private Rigidbody2D _rb;
         private CapsuleCollider2D _col;
@@ -73,7 +73,8 @@ namespace TarodevController
         }
         private void HandleSpriteFlip()
         {
-            if (_frameInput.Move.x != 0) _sprite.flipX = _frameInput.Move.x < 0;
+            if (_frameInput.Move.x != 0) 
+                _sprite.transform.localScale = new Vector3(_frameInput.Move.x, _sprite.transform.localScale.y, _sprite.transform.localScale.z);
         }
 
         private void FixedUpdate()
