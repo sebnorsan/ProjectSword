@@ -67,7 +67,7 @@ namespace TarodevController
 
             if (_frameInput.JumpDown)
             {
-                _jumpToConsume = true;
+                //_jumpToConsume = true;
                 _timeJumpWasPressed = _time;
             }
         }
@@ -127,7 +127,7 @@ namespace TarodevController
 
         #region Jumping
 
-        private bool _jumpToConsume;
+        //private bool _jumpToConsume;
         private bool _bufferedJumpUsable;
         private bool _endedJumpEarly;
         private bool _coyoteUsable;
