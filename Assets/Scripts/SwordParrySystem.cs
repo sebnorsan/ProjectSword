@@ -8,9 +8,11 @@ public class SwordParrySystem : MonoBehaviour
 
     private ParryParent parryParent;
 
-    private bool m1, m2;
+    private bool m1, m2down, m2up;
 
     public bool gravityBlade, earthBlade;
+
+    [SerializeField] private Animator lightAnim;
 
     private void Awake()
     {
@@ -20,19 +22,28 @@ public class SwordParrySystem : MonoBehaviour
     private void Update()
     {
         HandleInput();
-        if (m2)
+        if (m2down)
+            LoadParry();
+        if (m2up)
             Parry();
     }
     private void HandleInput()
     {
         m1 = Input.GetKeyDown(KeyCode.Mouse0);
-        m2 = Input.GetKeyDown(KeyCode.Mouse1);
+        m2down = Input.GetKeyDown(KeyCode.Mouse1);
+        m2up = Input.GetKeyUp(KeyCode.Mouse1);
     }
 
+    private void LoadParry()
+    {
+        lightAnim.SetTrigger("Load");
+    }
     private void Parry()
     {
         if (!parryCollider.activeSelf)
         {
+            lightAnim.SetTrigger("Load");
+
             ParryToggle();
             Invoke(nameof(ParryToggle), rechargeTime);
         }
