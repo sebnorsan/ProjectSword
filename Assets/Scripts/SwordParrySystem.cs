@@ -1,5 +1,5 @@
 using UnityEngine;
-
+using EZCameraShake;
 public class SwordParrySystem : MonoBehaviour
 {
     [SerializeField] private GameObject parryCollider;
@@ -15,10 +15,11 @@ public class SwordParrySystem : MonoBehaviour
     public bool gravityBlade, earthBlade;
 
     [SerializeField] private Animator lightAnim;
+    [SerializeField] private Animator swordAnim;
     private Animator parentAnim;
     private TarodevController.PlayerController player;
 
-    [SerializeField] private ParticleSystem sparks;
+    [SerializeField] private ParticleSystem sparks, parry;
 
     private void Awake()
     {
@@ -59,7 +60,7 @@ public class SwordParrySystem : MonoBehaviour
     private void LoadParry()
     {
         if (!parryCollider.activeSelf)
-            lightAnim.SetTrigger("Load");
+            lightAnim.SetBool("Light", true);
     }
     private void Parry()
     {
@@ -72,25 +73,17 @@ public class SwordParrySystem : MonoBehaviour
             }
 
             if (!earthBlade)
-                lightAnim.SetTrigger("Load");
+                lightAnim.SetBool("Light", false);
 
             ParryToggle();
             Invoke(nameof(ParryToggle), rechargeTime);
 
             if (!gravityBlade)
             {
-                if (parentAnim.GetInteger("FutsuSwing") > 0)
-                {
-                    parentAnim.SetInteger("FutsuSwing", 0);
-                    parentAnim.SetTrigger("Swing1");
-
-                }
+                if (swordAnim.GetInteger("FutsuSwing") > 0)
+                    swordAnim.SetInteger("FutsuSwing", 0);
                 else
-                {
-                    parentAnim.SetInteger("FutsuSwing", 1);
-                    parentAnim.SetTrigger("Swing2");
-                }
-                    
+                    swordAnim.SetInteger("FutsuSwing", 1);
             }
         }
     }
@@ -129,9 +122,8 @@ public class SwordParrySystem : MonoBehaviour
         {
             FindObjectOfType<TarodevController.PlayerController>().ExecuteJump();
             earthBlade = false;
+            sparks.Play();
         }
-
-        sparks.Play();
 
         //FindObjectOfType<TarodevController.PlayerController>().ExecuteJump();
     }
@@ -151,6 +143,8 @@ public class SwordParrySystem : MonoBehaviour
         go.transform.rotation = desiredRot;
 
         go.GetComponent<Rigidbody2D>().AddForce((Camera.main.ScreenToWorldPoint(Input.mousePosition) - transform.position).normalized * go.GetComponent<Projectile>().speed * 2, ForceMode2D.Impulse);
+        parry.Play();
 
+        CameraShaker.Instance.ShakeOnce(2f, 4f, .1f, .2f);
     }
 }
