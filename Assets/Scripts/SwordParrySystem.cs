@@ -13,10 +13,17 @@ public class SwordParrySystem : MonoBehaviour
     public bool gravityBlade, earthBlade;
 
     [SerializeField] private Animator lightAnim;
+    [SerializeField] private Animator parentAnim;
+    private TarodevController.PlayerController player;
+
+
 
     private void Awake()
     {
         parryParent = GetComponentInChildren<ParryParent>();
+        parentAnim = gameObject.GetComponent<Animator>();
+
+        player = FindObjectOfType<TarodevController.PlayerController>();
     }
 
     private void Update()
@@ -36,7 +43,8 @@ public class SwordParrySystem : MonoBehaviour
 
     private void LoadParry()
     {
-        lightAnim.SetTrigger("Load");
+        if (!parryCollider.activeSelf)
+            lightAnim.SetTrigger("Load");
     }
     private void Parry()
     {
@@ -46,6 +54,14 @@ public class SwordParrySystem : MonoBehaviour
 
             ParryToggle();
             Invoke(nameof(ParryToggle), rechargeTime);
+
+            if (!gravityBlade && !earthBlade)
+            {
+                if (parentAnim.GetInteger("FutsuSwing") > 0)
+                    parentAnim.SetInteger("FutsuSwing", 0);
+                else
+                    parentAnim.SetInteger("FutsuSwing", 1);
+            }
         }
     }
 

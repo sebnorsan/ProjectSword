@@ -73,7 +73,7 @@ namespace TarodevController
         }
         private void HandleSpriteFlip()
         {
-            if (_frameInput.Move.x != 0) 
+            if (_frameInput.Move.x != 0)
                 _sprite.transform.localScale = new Vector3(_frameInput.Move.x, _sprite.transform.localScale.y, _sprite.transform.localScale.z);
         }
 
