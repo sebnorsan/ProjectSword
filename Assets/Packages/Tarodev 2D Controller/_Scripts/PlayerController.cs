@@ -35,12 +35,16 @@ namespace TarodevController
 
         private float _time;
 
+        private Animator anim;
+
         private void Awake()
         {
             _rb = GetComponent<Rigidbody2D>();
             _col = GetComponent<CapsuleCollider2D>();
 
             _cachedQueryStartInColliders = Physics2D.queriesStartInColliders;
+
+            anim = gameObject.GetComponent<Animator>();
         }
 
         private void Update()
@@ -48,8 +52,23 @@ namespace TarodevController
             _time += Time.deltaTime;
             GatherInput();
             HandleSpriteFlip();
+            HandleAnimations();
         }
 
+        private void HandleAnimations()
+        {
+            if (Mathf.Abs(_frameInput.Move.x) > 0 && _grounded)
+                anim.SetBool("Running", true);
+            else
+                anim.SetBool("Running", false);
+
+            if (!_grounded)
+                anim.SetBool("Falling", true);
+            else
+                anim.SetBool("Falling", false);
+
+
+        }
         private void GatherInput()
         {
             _frameInput = new FrameInput

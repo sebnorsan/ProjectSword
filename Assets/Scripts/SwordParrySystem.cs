@@ -5,18 +5,20 @@ public class SwordParrySystem : MonoBehaviour
     [SerializeField] private GameObject parryCollider;
 
     [SerializeField] private float rechargeTime = .2f;
+    [SerializeField] private float reloadTime = .2f;
+    private bool canSwing = true;
 
     private ParryParent parryParent;
 
-    private bool m1, m2down, m2up;
+    private bool m1up,m1down, m2down, m2up;
 
     public bool gravityBlade, earthBlade;
 
     [SerializeField] private Animator lightAnim;
-    [SerializeField] private Animator parentAnim;
+    private Animator parentAnim;
     private TarodevController.PlayerController player;
 
-
+    [SerializeField] private ParticleSystem sparks;
 
     private void Awake()
     {
@@ -29,14 +31,27 @@ public class SwordParrySystem : MonoBehaviour
     private void Update()
     {
         HandleInput();
-        if (m2down)
-            LoadParry();
-        if (m2up)
-            Parry();
+
+        if (canSwing)
+        {
+            //if (m1down)
+            //    LoadParry();
+            if (m1down)
+            {
+                earthBlade = true;
+                Parry();
+            }
+
+            if (m2down)
+                LoadParry();
+            if (m2up)
+                Parry();
+        }
     }
     private void HandleInput()
     {
-        m1 = Input.GetKeyDown(KeyCode.Mouse0);
+        m1down = Input.GetKeyDown(KeyCode.Mouse0);
+        m1up = Input.GetKeyUp(KeyCode.Mouse0);
         m2down = Input.GetKeyDown(KeyCode.Mouse1);
         m2up = Input.GetKeyUp(KeyCode.Mouse1);
     }
@@ -50,19 +65,39 @@ public class SwordParrySystem : MonoBehaviour
     {
         if (!parryCollider.activeSelf)
         {
-            lightAnim.SetTrigger("Load");
+            if (canSwing)
+            {
+                canSwing = false;
+                Invoke(nameof(ResetSwing), reloadTime);
+            }
+
+            if (!earthBlade)
+                lightAnim.SetTrigger("Load");
 
             ParryToggle();
             Invoke(nameof(ParryToggle), rechargeTime);
 
-            if (!gravityBlade && !earthBlade)
+            if (!gravityBlade)
             {
                 if (parentAnim.GetInteger("FutsuSwing") > 0)
+                {
                     parentAnim.SetInteger("FutsuSwing", 0);
+                    parentAnim.SetTrigger("Swing1");
+
+                }
                 else
+                {
                     parentAnim.SetInteger("FutsuSwing", 1);
+                    parentAnim.SetTrigger("Swing2");
+                }
+                    
             }
         }
+    }
+
+    private void ResetSwing()
+    {
+        canSwing = true;
     }
 
     public void ParryToggle()
@@ -91,12 +126,21 @@ public class SwordParrySystem : MonoBehaviour
         if (collision.gameObject.CompareTag("Parryable"))
             ParryObject(collision.gameObject);
         if (earthBlade && collision.gameObject.layer == LayerMask.NameToLayer("Ground"))
+        {
             FindObjectOfType<TarodevController.PlayerController>().ExecuteJump();
+            earthBlade = false;
+        }
+
+        sparks.Play();
+
+        //FindObjectOfType<TarodevController.PlayerController>().ExecuteJump();
     }
     private void ParryObject(GameObject go)
     {
         if (gravityBlade)
             return;
+
+        
 
         Vector2 dir = Camera.main.ScreenToWorldPoint(Input.mousePosition) - transform.position;
         float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
