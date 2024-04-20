@@ -1,30 +1,28 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerHealth : MonoBehaviour
 {
-    public float health;
-    public float maxHealth;
-    
+    public int currentHealth;
+    public int maxHealth = 100;
+    public HealthBar healthBar;
+
     
     // Start is called before the first frame update
     void Start()
     {
-        health = maxHealth;
+        currentHealth = maxHealth;
+        healthBar.SetMaxHealth(maxHealth);
     }
 
-    // Update is called once per frame
-    void Update()
+    private void OnCollisionEnter2D(Collision2D collision)
     {
-       
-    }
-
-    private void OnCollisionEnter(Collision collision)
-    {
-       if(collision.gameObject.tag == "player")
+       if(collision.gameObject.tag == "enemyAttacks")
         {
-
+            currentHealth -= collision.gameObject.GetComponent<EnemyDamage>().damageAmount;
+            healthBar.SetHealth(currentHealth);
         }
     }
 }
