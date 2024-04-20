@@ -17,6 +17,14 @@ public class PlayerHealth : MonoBehaviour
         healthBar.SetMaxHealth(maxHealth);
     }
 
+    private void Update()
+    {
+       if (currentHealth <= 0)
+        {
+            Destroy(gameObject);
+        }
+    }
+
     private void OnCollisionEnter2D(Collision2D collision)
     {
        if(collision.gameObject.tag == "enemyAttacks")
